@@ -2,6 +2,7 @@ package ru.examples.stream_api;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
@@ -13,64 +14,58 @@ import java.util.stream.Stream;
 
 
 /**
- * Операции в стримах делятся на два типа - промежуточные и
- * терминальные (может и должна быть только одна, для завершения операции над стримом)
+ * Операции в стримах делятся на два типа - промежуточные и терминальные
  *
  *
- * Терминальные операции (всего две - collect() и forEach()) :
+ * Терминальные операции (всего две - collect() и forEach(), может быть всего одна в стриме) :
  * collect()
  *
- * stream.collect(Collectors.toList())
- * stream.collect(Collectors.counting()) - подсчёт кол-ва элементов в стриме
- * stream(array).collect(Collectors.averagingInt(s -> s.length()) - считаем среднее значение
- * stream(array).filter(str -> str.startsWith("A")).collect(Collectors.joining(" и ", "Перечисленные слова [", "] начинаются на букву A")) - вывести все слова на букву A
- * joining() принимает в качестве аргумента разделитель, префикс и суффикс
- * collect(Collectors.groupingBy()) - сборка в мапу
+ * Collectors.toList()
+ * Collectors.toSet()
+ * Collectors.toMap()
+ * Collectors.counting()            - подсчёт кол-ва элементов в стриме
+ * Collectors.averagingInt()        - считаем среднее значение
+ * Collectors.joining()             - объединение в одну строку
+ * Collectors.groupingBy()          - сборка в мапу
  *
  * forEach()
- *
- * count() возвращает количество элементов в стриме
- * reduce() выполняет роль сумматора по всем элементам стрима
- * stream.reduce((i1, i2) -> i1 > i2 ? i1 : i2).ifPresent(System.out::println)
  *
  *
  * Промежуточные операции:
  *
- * filter()
- * sort()
- * map()
- * limit()
- * distinct()
- * allMatch()
- * anyMatch()
- * noneMatch()
- * findAny()
- * findFirst()
- * reduce()
- *
+ * filter()                         - фильтрация элементов
+ * sort()                           - сортировка элементов
+ * map()                            - преобразование элементов
+ * limit()                          - ограничение кол-ва элементов
+ * distinct()                       - убрать дублирующиеся элементы
+ * allMatch()                       - все объекты в стриме должны удовлетворять этому условию
+ * anyMatch()                       - хоть один элемент должен удовлетворять условию
+ * noneMatch()                      - не один элемент не должен удовлетворять условию
+ * findAny()                        - взять любой элемент
+ * findFirst()                      - взять первый элемент
+ * reduce()                         - сокращение кол-ва элементов в стриме до одного
+ * flatMap()                        - преобразование стрима стримов в один стрим
+ * mapToInt()                       - преобразование к стриму интов
+ * mapToInt().sum()                 - возвращает сумму элементов в стриме
+ * mapToInt().average()             - возвращает среднее значение элеметов в стриме
+ * mapToInt().max()                 - возвращает максимальное значение из стрима
  */
 
-//todo вынести описание каждой промежуточной операции в отдельный пример 1:07
-//todo добавить gitignore
 
-public class App {
+public class ExamplesOfUsingStreamAPI {
     public static void main(String[] args) {
-//                firstEx();
-//                filterEx();
+//        firstEx();
+//        filterEx();
 //        flatMapEx();
-        System.out.println(readFileToString());
+//        System.out.println(readFileToString());
     }
 
     /**
-     * Пример применения filter()
-     * filter() отдаёт объект, реализующий обобщённый функциональный интерфейс Predicate,
-     * в котором прописан метод test(Integer integer).
-     * Каждый объект стрима будет передан этому методу, и если метод возвращает true, то объект проходит
-     * фильтр, в противном случае — отсеивается
-     *
+     * Пример применения filter() и forEach()
+     * filter() отдаёт объект, реализующий обобщённый функциональный интерфейс Predicate
+     * возвращает boolean, если true, то проходит фильтр
+     * <p>
      * forEach реализует функциональный интерфейс Consumer (что-то потребляет)
-     *
-     *
      */
     private static void filterEx() {
 
@@ -93,17 +88,18 @@ public class App {
                 .forEach(n -> System.out.println(n));
     }
 
-
-
     /**
      * Пример применения map() и limit()
      * map() реализует функциональный интерфейс Function (преобразование одного объекта в другой с помощью метода apply)
+     * <p>
      * limit() взять из потока n - первых элементов
      */
     private static void secondEx() {
+
         // Создаем список целых чисел
         List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8);
 
+        // Реализация map() без использования лямбды
         List<Integer> out1 = numbers.stream()
                 .filter(n -> n % 2 == 0)
                 .map(new Function<Integer, Integer>() {
@@ -115,7 +111,7 @@ public class App {
                 .limit(2)
                 .collect(Collectors.toList());
 
-
+        // Реализация map() с использованием лямбды
         List<Integer> out2 = numbers.stream()                       // преобразуем список целых чисел в поток данных и начинаем обработку
                 .filter(n -> n % 2 == 0)                            // фильтруем поток, оставляем в нем только четные числа
                 .map(integer -> integer * integer)                  // преобразуем каждый элемент потока int -> int, умножая на 2
@@ -127,13 +123,56 @@ public class App {
 
     }
 
+    /**
+     * Пример применения sorted() , filter(), map()
+     * sorted() реализует функциональный интерфейс Comparator (сравнение одного элемента с другим)
+     */
+    private static void firstEx() {
+        List<Person> persons = new ArrayList<>(Arrays.asList(
+                new Person("Bob1", 35, Person.Position.MANAGER),
+                new Person("Bob2", 44, Person.Position.DIRECTOR),
+                new Person("Bob3", 25, Person.Position.ENGINEER),
+                new Person("Bob4", 42, Person.Position.ENGINEER),
+                new Person("Bob5", 55, Person.Position.MANAGER),
+                new Person("Bob6", 19, Person.Position.MANAGER),
+                new Person("Bob7", 33, Person.Position.ENGINEER),
+                new Person("Bob8", 37, Person.Position.MANAGER)
+        ));
+
+        //пример решения задачи без стрима
+        List<Person> engineers = new ArrayList<>();
+        for (Person o : persons) {
+            if (o.getPosition() == Person.Position.ENGINEER) {
+                engineers.add(o);
+            }
+        }
+        engineers.sort(new Comparator<Person>() {
+            @Override
+            public int compare(Person o1, Person o2) {
+                return o1.getAge() - o2.getAge();
+            }
+        });
+        List<String> engineersNames = new ArrayList<>();
+        for (Person o : engineers) {
+            engineersNames.add(o.getName());
+        }
+        System.out.println(engineersNames);
+
+        //Пример решения задачи стримом
+        List<String> engineersNamesShortPath = persons.stream()
+                .filter(p -> p.getPosition() == Person.Position.ENGINEER)
+                .sorted((o1, o2) -> o1.getAge() - o2.getAge())
+                .map(person -> person.getName())
+                .collect(Collectors.toList());
+        System.out.println(engineersNamesShortPath);
+    }
 
     /**
      * Пример использования distinct()
      * distinct() - убирает дублирующиеся значения в из потока
-     *
+     * <p>
      * System.out::println - передать каждый элемент в потоке в качестве аргумента в статический метод println
-     *
+     * <p>
      * String::length - вызвать у каждого объекта его метод length
      */
     private static void thirdEx() {
@@ -144,17 +183,16 @@ public class App {
         // делаем то же самое, что и в первом случае, только используем более короткую запись System.out::println
         System.out.println("Второй вариант: ");
         Arrays.asList(1, 2, 3, 4, 4, 3, 2, 3, 2, 1).stream().distinct().forEach(System.out::println);
-        Stream.of("A","Aaa","AAaa").map(String::length);
+        Stream.of("A", "Aaa", "AAaa").map(String::length);
     }
 
     /**
      * Пример использования allMatch(), anyMatch() и noneMatch()
      * allMatch(), anyMatch(), noneMatch()  реализуют функциональный интерфейс Predicate - все объекты в стриме должны удовлетворять этому условию
-     *
+     * <p>
      * allMatch() - все объекты в стриме должны удовлетворять этому условию
      * anyMatch() - хоть один элемент должен удовлетворять условию
      * noneMatch() - не один элемент не должен удовлетворять условию
-     *
      */
     private static void matchEx() {
         List<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
@@ -188,8 +226,8 @@ public class App {
 
         List<String> list = Arrays.asList("A", "BB", "C", "DDD", "EE", "FFFF");
 //        List<Integer> wordsLength = list.stream().map(str -> str.length()).collect(Collectors.toList());
-        List<Integer> wordsLength = list.stream().map(String::length).collect(Collectors.toList());
-//        List<Integer> wordsLength = list.stream().map(strToLen).collect(Collectors.toList());
+//        List<Integer> wordsLength = list.stream().map(String::length).collect(Collectors.toList());
+        List<Integer> wordsLength = list.stream().map(strToLen).collect(Collectors.toList());
 
         System.out.println(list);
         System.out.println(wordsLength);
@@ -237,7 +275,6 @@ public class App {
      * sum() - возвращает сумму элементов в стриме
      * average() - возвращает среднее значение элеметов в стриме
      * max() - возвращает максимальное значение в стриме и т.д.
-     *
      */
     private static void intStreamsEx() {
         IntStream myIntStream = IntStream.of(10, 20, 30, 40, 50);
@@ -251,15 +288,12 @@ public class App {
 
     /**
      * Примеры создания стримов
-    * */
-
+     */
     private static void streamCreationEx() {
         Arrays.asList("A", "B", "C").stream().forEach(System.out::println);
         Stream.of(1, 2, 3, 4).forEach(System.out::println);
         Arrays.stream(new int[]{4, 3, 2, 1}).forEach(System.out::println);
     }
-
-
 
     /**
      * Пример решения задачи подсчёта кол-ва уникальных слов в строке
@@ -269,13 +303,11 @@ public class App {
         System.out.println(Arrays.stream("A B CC B C AA A A B CC C".split("\\s")).distinct().count());
     }
 
-
     /**
      * Пример использования flatMap()
      * flatMap() - преобразование стрима стримов в один стрим
      * Задача - необходимо найти в файле все уникальные слова и их отпечатать,
      * два первых решения неверные, третье верное с использованием flatMap()
-     *
      */
     private static void flatMapEx() {
         try {
@@ -320,45 +352,23 @@ public class App {
         return str;
     }
 
-
-    private static void firstEx() {
-        List<Person> persons = new ArrayList<>(Arrays.asList(
-                new Person("Bob1", 35, Person.Position.MANAGER),
-                new Person("Bob2", 44, Person.Position.DIRECTOR),
-                new Person("Bob3", 25, Person.Position.ENGINEER),
-                new Person("Bob4", 42, Person.Position.ENGINEER),
-                new Person("Bob5", 55, Person.Position.MANAGER),
-                new Person("Bob6", 19, Person.Position.MANAGER),
-                new Person("Bob7", 33, Person.Position.ENGINEER),
-                new Person("Bob8", 37, Person.Position.MANAGER)
-        ));
-
-        //пример решения задачи без стрима
-        List<Person> engineers = new ArrayList<>();
-        for (Person o : persons) {
-            if (o.getPosition() == Person.Position.ENGINEER) {
-                engineers.add(o);
-            }
+    /**
+     * Задача посчитать кол-во повторяющихся слов в файле
+     * <p>
+     * Пример использования flatMap() - объединение стримов в один стрим
+     * Collectors.groupingBy() - приводим к мапе
+     * Collectors.counting() - подсчёт кол-ва элементов в стриме
+     */
+    public static Map<String, Long> countWordsInFile(Path path) {
+        try {
+            Map<String, Long> out = Files.lines(path)
+                    .map(line -> line.split("\\s"))
+                    .flatMap(Arrays::stream)
+                    .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
+            return out;
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to read file: " + path.getFileName().toString());
         }
-        engineers.sort(new Comparator<Person>() {
-            @Override
-            public int compare(Person o1, Person o2) {
-                return o1.getAge() - o2.getAge();
-            }
-        });
-        List<String> engineersNames = new ArrayList<>();
-        for (Person o : engineers) {
-            engineersNames.add(o.getName());
-        }
-        System.out.println(engineersNames);
-
-        //Пример решения задачи стримом
-        List<String> engineersNamesShortPath = persons.stream()
-                .filter(p -> p.getPosition() == Person.Position.ENGINEER)
-                .sorted((o1, o2) -> o1.getAge() - o2.getAge())
-                .map(person -> person.getName())
-                .collect(Collectors.toList());
-        System.out.println(engineersNamesShortPath);
     }
 }
 
