@@ -12,7 +12,7 @@ public class JdbcMainApp {
      * CRUD - операции (Create, Read, Update, Delete)
      *
      * Для Create, Update, Update используем executeUpdate, возвращает int - кол-во строк изменений
-     * <p>
+     *
      * Для Read используем executeQuery - возвращает ResultSet, курсор указывает на предыдущую строку
      *
      * Для того, чтобы проводить операции в одной транзакции выставляем сначала
@@ -135,12 +135,12 @@ public class JdbcMainApp {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        if (connection != null) {
-            try {
+        try {
+            if (connection != null) {
                 connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
