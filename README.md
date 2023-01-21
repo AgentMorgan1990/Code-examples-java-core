@@ -5,3 +5,4 @@ This repository was created to store code examples from topics such as :
 4) JDBC and SQLite
 5) Java.io (input/output)
 6) Logging (log4j2)
+7) Reflection and annotations
