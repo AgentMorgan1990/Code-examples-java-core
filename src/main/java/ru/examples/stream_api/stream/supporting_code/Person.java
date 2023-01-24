@@ -1,4 +1,4 @@
-package ru.examples.stream_api;
+package ru.examples.stream_api.stream.supporting_code;
 
 
 import lombok.Getter;
@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Person {
-    enum Position {
+    public enum Position {
         ENGINEER, DIRECTOR, MANAGER;
     }
 
