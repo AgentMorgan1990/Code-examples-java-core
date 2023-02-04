@@ -1,16 +1,19 @@
-package ru.examples.stream_api;
+package ru.examples.stream_api.stream;
+
+import ru.examples.stream_api.stream.supporting_code.*;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import java.util.stream.*;
 
 
 /**
@@ -20,45 +23,202 @@ import java.util.stream.Stream;
  * в стриме, может изменить остальную логику выполнения программы.
  *
  * Операции в стримах делятся на два типа - промежуточные и терминальные
- *
- *
- * Терминальные операции (collect() и forEach(), может быть всего одна в стриме) :
- * collect()
- *
- * Collectors.toList()
- * Collectors.toSet()
- * Collectors.toMap()
- * Collectors.counting()            - подсчёт кол-ва элементов в стриме
- * Collectors.averagingInt()        - считаем среднее значение
- * Collectors.joining()             - объединение в одну строку
- * Collectors.groupingBy()          - сборка в мапу
- *
- * forEach()
- *
- *
- * Промежуточные операции:
- *
- * filter()                         - фильтрация элементов
- * sort()                           - сортировка элементов
- * map()                            - преобразование элементов
- * limit()                          - ограничение кол-ва элементов
- * distinct()                       - убрать дублирующиеся элементы
- * allMatch()                       - все объекты в стриме должны удовлетворять этому условию
- * anyMatch()                       - хоть один элемент должен удовлетворять условию
- * noneMatch()                      - не один элемент не должен удовлетворять условию
- * findAny()                        - взять любой элемент
- * findFirst()                      - взять первый элемент
- * reduce()                         - сокращение кол-ва элементов в стриме до одного
- * flatMap()                        - преобразование стрима стримов в один стрим
- * mapToInt()                       - преобразование к стриму интов
- * mapToInt().sum()                 - возвращает сумму элементов в стриме
- * mapToInt().average()             - возвращает среднее значение элеметов в стриме
- * mapToInt().max()                 - возвращает максимальное значение из стрима
  */
 
 
 public class ExamplesOfUsingStreamAPI {
-    public static void main(String[] args) {
+
+
+    public static void main(String[] args) throws IOException {
+
+        List<Employee> emps = List.of(
+                new Employee("Michael", "Smith", 243, 43, Position.CHEF),
+                new Employee("Jane", "Smith", 523, 40, Position.MANAGER),
+                new Employee("Jury", "Gagarin", 6423, 26, Position.MANAGER),
+                new Employee("Jack", "London", 5543, 53, Position.WORKER),
+                new Employee("Eric", "Jackson", 2534, 22, Position.WORKER),
+                new Employee("Andrew", "Bosh", 3456, 44, Position.WORKER),
+                new Employee("Joe", "Smith", 723, 30, Position.MANAGER),
+                new Employee("Jack", "Gagarin", 7423, 35, Position.MANAGER),
+                new Employee("Jane", "London", 7543, 42, Position.WORKER),
+                new Employee("Mike", "Jackson", 7534, 31, Position.WORKER),
+                new Employee("Jack", "Bosh", 7456, 54, Position.WORKER),
+                new Employee("Mark", "Smith", 123, 41, Position.MANAGER),
+                new Employee("Jane", "Gagarin", 1423, 28, Position.MANAGER),
+                new Employee("Sam", "London", 1543, 52, Position.WORKER),
+                new Employee("Jack", "Jackson", 1534, 27, Position.WORKER),
+                new Employee("Eric", "Bosh", 1456, 32, Position.WORKER)
+        );
+
+        List<Department> deps = List.of(
+                new Department(1, 0, "Head"),
+                new Department(2, 1, "West"),
+                new Department(3, 1, "East"),
+                new Department(4, 2, "Germany"),
+                new Department(5, 2, "France"),
+                new Department(6, 3, "China"),
+                new Department(7, 3, "Japan")
+        );
+
+
+        /**
+         * Примеры создания стримов:
+         *  Files.lines()                                       - создание стрима строк прямо из файла
+         *  Files.list()                                        - создание стрима путей
+         *  Files.walk()                                        - создание стрима путей с заходом внутри папок с указанной глубиной
+         *  IntStream.of()                                      - создание стрима интов
+         *  DoubleStream.of()                                   - создание стрима даблов
+         *  IntStream.range()                                   - создание стрима интов от и до (невключительно)
+         *  IntStream.rangeClosed()                             - создание стрима интов (включительно)
+         *  Arrays.stream()                                     - создание стрима из массива примитивов
+         *  Stream.of()                                         - создание стрима
+         *  Stream<? extends Serializable> stream = Stream.of() - создание стрима с приведением/кастом данных
+         *  Stream.<String>builder()                            - создание стрима строк через билдер
+         *  emps.stream()                                       - стрим из коллекции
+         *  emps.parallelStream()                               - создание стрима для обработки в несколько потоков,
+         *  есть смысл использовать только на больших коллекциях, т.к. на маленьких только потеряем производительность
+         *  на распараллеливание и обратное объединение
+         *
+         *  Stream.generate()                                   - создание стримов из функций, беспонечная
+         *  последовательность, объекты изначально не содержаться, а генерируются при обращении к этому стриму
+         *
+         *  Stream.iterate()                                    - получение условно бесконечного стрима, который будет создаваться с шагом
+         *  Stream.concat()                                     - объединение двух стримов
+         */
+
+
+        Stream<String> lines = Files.lines(Paths.get("1.txt"), Charset.defaultCharset());
+        Stream<Path> list = Files.list(Paths.get("./"));
+        Stream<Path> walk = Files.walk(Paths.get("./"), 3);
+
+        IntStream intStream = IntStream.of(1, 2, 3, 4);
+        DoubleStream doubleStream = DoubleStream.of(1.45, 5.67, 7);
+        IntStream range = IntStream.range(10, 100); //10...99
+        IntStream intStream1 = IntStream.rangeClosed(10, 100); //10...100
+
+        int[] ints = {1, 2, 3, 4};
+        IntStream intStream2 = Arrays.stream(ints);
+
+        Stream<String> stringStream = Stream.of("1", "2", "3", "4");
+        Stream<? extends Serializable> stream = Stream.of(1, "2", "3");
+        Stream<String> build = Stream.<String>builder()
+                .add("Mike")
+                .add("John")
+                .build();
+        Stream<Employee> stream1 = emps.stream();
+        Stream<Employee> employeeStream = emps.parallelStream();
+        Stream<Event> generate = Stream.generate(() -> new Event(UUID.randomUUID(), LocalDateTime.now(), ""));
+        Stream<Integer> iterate = Stream.iterate(1950, val -> val + 3);
+        Stream<String> concat = Stream.concat(stringStream,build);
+
+//        concat.forEach(e-> System.out.println(e));
+//        generate.forEach(e-> System.out.println(e));
+//        iterate.forEach(e-> System.out.println(e));
+//        walk.forEach(e -> System.out.println(e));
+//        list.forEach(e -> System.out.println(e));
+//        lines.forEach(e -> System.out.println(e));
+
+        /**
+         * Терминальные операции - завершающая операция, после нихнельзя ещё раз вызвать стрим, eager операции
+         *
+         * .count()                     - посчитать кол-во объектов в стриме
+         * .forEach()                   - обойти все элементы стрима/коллекции
+         * .forEachOrdered()            - спользуем при parallelStream() - гарантируется обход всех стримов
+         * .toArray()                   - преобразование в массив
+         * .reduce()                    - сокращение кол-ва элементов - например сложение всех интов
+         * .average()                   - получить среднее
+         * .max()                       - макс
+         * .min()                       - мин
+         * .summaryStatistics()         - возвращает объект IntSummaryStatistics с макс. мин, средним и суммой и количеством
+         * .findAny()                   - для однопоточного стрима отработает одинаково - возьмёт первый элемент, для параллельных любой
+         * .findFirst()                 - гарантировано возьмёт первый, даже из паралельных стримов
+         * .noneMatch()                 - возвращает булен, не один не соответствует условию
+         * .anyMatch()                  - возвращает булеан, хотябы один сооветствует условию
+         * .allMatch()                  - возвращает булеан, все соответствуют условию
+         *
+         * .collect()                   - преобразование в коллекцию
+         *  Collectors.toList()
+         *  Collectors.toSet()
+         *  Collectors.toMap()
+         *  Collectors.counting()       - подсчёт кол-ва элементов в стриме
+         *  Collectors.averagingInt()   - считаем среднее значение
+         *  Collectors.joining()        - объединение в одну строку
+         *  Collectors.groupingBy()     - сборка в мапу
+         * */
+        emps.stream().count();
+        emps.stream().forEach(employee -> System.out.println(employee.getAge()));
+        emps.stream().forEachOrdered(employee -> System.out.println(employee.getAge()));
+        emps.stream().collect(Collectors.toList());
+        Object[] emp1 = emps.stream().toArray();
+        emps.stream().collect(Collectors.toMap(
+                emp -> emp.getId(),
+                emp -> String.format("%s %s", emp.getLastName(), emp.getFirstName())
+        ));
+        emps.stream().collect(Collectors.toMap(
+                emp -> emp.getId(),
+                Function.identity()
+        ));
+
+        IntStream intStream3 = IntStream.of(100, 200, 300);
+        Integer integer = intStream3.reduce(((left, right) -> left + right)).orElse(0);
+        IntStream.of(100, 200, 300).average();
+        IntStream.of(100, 200, 300).max();
+        IntStream.of(100, 200, 300).min();
+        IntStream.of(100, 200, 300).summaryStatistics();
+        IntSummaryStatistics intSummaryStatistics = emps.stream().mapToInt(e -> e.getAge()).summaryStatistics();
+        System.out.println(intSummaryStatistics);
+
+        emps.stream().max(((o1, o2) -> o1.getAge() - o2.getAge()));
+        emps.stream().max((Comparator.comparingInt(Employee::getAge)));
+
+        emps.stream().findAny();
+        emps.stream().findFirst();
+
+        emps.stream().noneMatch(employee -> employee.getAge() > 60);                    //true
+        emps.stream().anyMatch(employee -> employee.getPosition() == Position.CHEF);    //true
+        emps.stream().allMatch(employee -> employee.getAge() > 18);                     //true
+
+//        System.out.println(integer);
+//        System.out.println(Arrays.toString(emp1));
+
+        /**
+         * Промежуточные операции - все методы lazy, операции не будут выполнены, пока не будет выполнена eager операция
+         *
+         * .mapToLong() - преобразование в другой тип данных
+         * .mapToObj() - преобразование и создание объекта с помощью данных из стрима
+         * .distinct() - убрать дубликаты
+         * .filter() - фильтрование
+         * .skip() - пропустить кол-во объектов с начала стрима
+         * .limit() - отобразить только первые записи
+         * .sorted() - сортировка
+         * .map() - преобразование элементов
+         * .peek() - провести действие с каждым элементом
+         * .takeWhile() - оставляет элементы, до выполнени условия (когда выполняетс условия стрим дальше не отрабатывает)
+         * .dropWhile() - оставляет элементы после выполнения условия (включительно) (отрабатывает начиная с выполнения условия)
+         * .flatMap() - работа со стримами стримов, можно например увеличить кол-во элементов
+         * */
+
+        LongStream longStream = IntStream.of(1, 34, 56, 78).mapToLong(Long::valueOf);
+        IntStream.of(100, 200, 300)
+                .mapToObj(value -> new Event(UUID.randomUUID(),
+                        LocalDateTime.of(value, 12, 1, 12, 0),
+                        ""));
+
+        IntStream.of(100, 200, 300, 100, 100).distinct();
+
+        emps.stream().filter(employee -> employee.getPosition() != Position.CHEF);
+        emps.stream().skip(3);
+        emps.stream().limit(5);
+        emps.stream().sorted((o1, o2) -> o1.getAge()-o2.getAge());
+        emps.stream().map(emp->String.format("%s %s", emp.getLastName(), emp.getFirstName()));
+        emps.stream().peek(employee -> employee.setAge(18));
+        emps.stream().takeWhile(employee -> employee.getAge() > 30).forEach(System.out::println);
+        System.out.println();
+        emps.stream().dropWhile(employee -> employee.getAge() > 30).forEach(System.out::println);
+        IntStream.of(100, 200, 300)
+                .flatMap(value -> IntStream.of(value-50,value))
+                .forEach(System.out::println);
+
 //        firstEx();
 //        filterEx();
 //        flatMapEx();
