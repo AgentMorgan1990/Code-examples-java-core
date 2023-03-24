@@ -1,4 +1,4 @@
-package ru.examples.core;
+package ru.examples.core.base_constructions;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -18,7 +18,8 @@ public class CoreExample {
 //        createTwoDimensionalArray();
 //        consoleInput();
 //        selectNumber(20,45);
-        usingPrintf();
+//        usingPrintf();
+        usingForEachInTwoDimensionalArray();
     }
 
     private static void useTernaryOperator() {
@@ -148,6 +149,25 @@ public class CoreExample {
 
     private static void usingPrintf(){
         System.out.printf("Слово: %s, Число с плавающей запятой: %f, Целое число: %d, Символ: %c", "Java", 2.5f, 20, 'e');
+    }
+
+    private static void usingForEachInTwoDimensionalArray(){
+        int sum = 0;
+        int[][] nums = new int[3][5];
+
+        // give nums some values
+        for(int i = 0; i < 3; i++)
+            for(int j=0; j < 5; j++)
+                nums[i][j] = (i+1)*(j+1);
+
+        // use for-each for to display and sum the values
+        for(int[] x : nums) {
+            for(int y : x) {
+                System.out.println("Value is: " + y);
+                sum += y;
+            }
+        }
+        System.out.println("Summation: " + sum);
     }
 
 }
