@@ -22,7 +22,7 @@ import java.util.Arrays;
  * Символьные потоки - читаем пишем посимвольно
  * Reader, Writer - аналог InputStream, OutputStream для символов
  *
- * FileReader, FileWriter - аналог ileInputStream, FileOutputStream для символов
+ * FileReader, FileWriter - аналог FileInputStream, FileOutputStream для символов
  *
  * BufferedReader, BufferedWriter аналог BufferedInputStream, BufferedOutputStream для символов
  *

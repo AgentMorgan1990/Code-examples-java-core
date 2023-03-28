@@ -4,6 +4,12 @@ public class TestClass {
 
     public static void main(String[] args) {
 
+        /**
+         * В данном методе фактически происходит создание объекта анонимного кдасса с переопределением метода Run
+         * Анонимный класс создаётся с именем - public class TestClass$1 implements Runnable
+         * Применяется имя класса в котором этот анонимный класс создан с $1
+         * */
+
         Runnable r1 = new Runnable() {
             @Override
             public void run() {
@@ -11,7 +17,16 @@ public class TestClass {
             }
         };
 
-        //Сокращение выражения в лямбду по функциональному интерфейсу Runnable
+
+        /**
+         * Пример выаода имени анонимного класса - ru.examples.stream_api.lambda.TestClass$2
+         * */
+        System.out.println(new TestClass(){}.getClass().getName());
+
+        /**
+         * Сокращение выражения в лямбду по функциональному интерфейсу Runnable
+         * Сохраняем в переменной ссылку на метод через объект анононимного класса
+         * */
         Runnable r2 = () -> System.out.println(2);
 
         //Пример лямбды для класса Thread, конструктор класса принимает Runnable
@@ -20,7 +35,12 @@ public class TestClass {
             System.out.println(13);
         }).start();
 
-        //Получение ссылки на реализацию метода
+        /**
+         *
+         * В данном примере мы фактически можем получать в один объект ссылки на разные методы
+         * Получение ссылки на реализацию метода
+         * */
+
         Runnable current = r2;
         current.run();
 
