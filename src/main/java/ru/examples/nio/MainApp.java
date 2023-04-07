@@ -135,5 +135,31 @@ public class MainApp {
             bytesRead = channel.read(byteBuffer);
         }
 
+
+        /**
+         * Пример обхода папки и сортировки папок и файлов с добавлением в файлы нового обозначения
+         * */
+//        List<String> filesList =
+                Files.list(Paths.get("."))
+//                .filter(p->!Files.isDirectory(p))
+//                .map(p->p.getFileName().toString())
+                .sorted((o1, o2) -> {
+                    if (Files.isDirectory(o1) && !Files.isDirectory(o2)) {
+                        return -1;
+                    } else if (!Files.isDirectory(o1) && Files.isDirectory(o2)) {
+                        return 1;
+                    } else return 0;
+                })
+                .map(p -> {
+                    if (!Files.isDirectory(p)) {
+                        return p.getFileName().toString();
+                    } else {
+                        return "[" + p.getFileName().toString() + "]";
+                    }
+                })
+//                .collect(Collectors.toList());
+                .forEach(System.out::println);
+
+
     }
 }
