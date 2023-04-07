@@ -1,5 +1,7 @@
 package ru.examples.stream_api.lambda;
 
+import java.util.stream.Stream;
+
 public class TestClass {
 
     public static void main(String[] args) {
@@ -58,6 +60,16 @@ public class TestClass {
 
         MyFunctionalInterface current2 = inter2;
         current2.doSomething(5, 5);
+
+        /**
+         * :: - Ссылка на метод, можем применять любые статические методы, которые принимают наш объект
+         * */
+        Stream.of(5,6,7).forEach(System.out::println);
+
+        /**
+         * :: - в данном случае ссылка на метод, которые есть у обрабатываемых объектов
+         * */
+        Stream.of("A","B").map(String::length);
 
     }
 }
