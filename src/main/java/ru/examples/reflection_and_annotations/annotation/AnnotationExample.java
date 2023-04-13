@@ -33,7 +33,7 @@ import java.util.Map;
  * ElementType.TYPE – тип;
  * ElementType.LOCAL_VARIABLE – локальная переменная и т.д.
  * <p>
- * Пример автоненерации таблиц по размеченным классам
+ * Пример автогенерации таблиц по размеченным классам
  */
 public class AnnotationExample {
     public static void main(String[] args) {
