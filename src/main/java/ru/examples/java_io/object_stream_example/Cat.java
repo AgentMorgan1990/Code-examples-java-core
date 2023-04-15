@@ -1,4 +1,4 @@
-package ru.examples.java_io.serialize;
+package ru.examples.java_io.object_stream_example;
 
 import java.io.Serializable;
 
