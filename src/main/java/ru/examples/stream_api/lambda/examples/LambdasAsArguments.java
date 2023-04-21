@@ -1,4 +1,4 @@
-package ru.examples.stream_api.lambda;
+package ru.examples.stream_api.lambda.examples;
 
 public class LambdasAsArguments {
 }
