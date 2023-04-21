@@ -1,4 +1,4 @@
-package ru.examples.stream_api.lambda;
+package ru.examples.stream_api.lambda.examples;
 
 import java.util.stream.Stream;
 
@@ -21,7 +21,7 @@ public class TestClass {
 
 
         /**
-         * Пример выаода имени анонимного класса - ru.examples.stream_api.lambda.TestClass$2
+         * Пример выаода имени анонимного класса - ru.examples.stream_api.lambda.examples.TestClass$2
          * */
         System.out.println(new TestClass(){}.getClass().getName());
 
